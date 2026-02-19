@@ -42,7 +42,7 @@ class PostgresDB {
     }
 
     public function findUserByEmail($email) {
-        $stmt = $this->pdo->prepare("SELECT * FROM users WHERE email = ?");
+        $stmt = $this->pdo->prepare("SELECT * FROM users WHERE LOWER(email) = LOWER(?)");
         $stmt->execute([$email]);
         return $stmt->fetch() ?: null;
     }

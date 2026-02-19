@@ -10,7 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 $name = trim($_POST['name'] ?? '');
-$email = trim($_POST['email'] ?? '');
+$email = strtolower(trim($_POST['email'] ?? ''));
 $phone = trim($_POST['phone'] ?? '');
 $photo = trim($_POST['photo'] ?? '');
 
