@@ -1,0 +1,33 @@
+# System Files
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+*.bak
+
+# Antigravity/Gemini Specific
+.gemini/
+.gemini_test_credentials.json
+
+# PHP/Composer
+vendor/
+composer.lock
+composer.phar
+.php_cs.cache
+.phpunit.result.cache
+
+# Docker
+.dockerignore
+
+# Deployment Secrets (Should be Env Vars)
+.env
+**/config/key/
+*.json
+!composer.json
+!package.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
