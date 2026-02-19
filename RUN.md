@@ -20,19 +20,14 @@ composer install
 
 ### Step 2: Configuration
 
+#### Environment Variables
+The project uses environment variables for database and API keys. You can create a `.env` file (ignored by Git) or set them in your terminal:
+- `DB_HOST`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`
+- `OPENAI_API_KEY`, `RAZORPAY_KEY_ID`, etc.
+
 #### Firebase Setup
-The project requires Firebase Admin SDK for authentication.
 1. Place your Firebase Service Account Key JSON file at:
    `apps/backend/config/key/firebase_admin_sdk.json`
-2. If the folder `key` doesn't exist, create it.
-
-#### Razorpay Setup
-1. Open `apps/backend/config/razorpay.php`.
-2. Replace the test keys with your own from the [Razorpay Dashboard](https://dashboard.razorpay.com/app/keys) if needed:
-   ```php
-   define('RAZORPAY_KEY_ID', 'your_key_id');
-   define('RAZORPAY_KEY_SECRET', 'your_key_secret');
-   ```
 
 ### Step 3: Database
 
@@ -43,7 +38,6 @@ The project uses a **PostgreSQL** database.
 3. If you need to initialize or seed the database, run:
    ```bash
    psql -U your_user -d rentride -f db/schema_postgres.sql
-   php apps/backend/scripts/init_db.php
    ```
 
 ## 3. Running the Project
@@ -53,7 +47,7 @@ You can use the built-in PHP server to run the application.
 1. Open a terminal in the project root.
 2. Run the following command:
    ```bash
-   php -S localhost:8000 -t apps/frontend
+   php -S localhost:8000 -t public
    ```
 3. Open your browser and visit: `http://localhost:8000`
 
@@ -61,7 +55,3 @@ You can use the built-in PHP server to run the application.
 
 - **Admin Email:** `admin@rental.com`
 - **Admin Password:** `admin123`
-
----
-> [!NOTE]
-> Ensure the `db/data.json` file has write permissions for the PHP process.
