@@ -3,7 +3,7 @@
 // Razorpay Test Mode credentials
 // Replace with your own keys from https://dashboard.razorpay.com/app/keys
 
-define('RAZORPAY_KEY_ID', getenv('RAZORPAY_KEY_ID') ?: 'rzp_test_SGqkdCyaFNXSSI');
+define('RAZORPAY_KEY_ID', getenv('RAZORPAY_KEY_ID') ?: '');
 define('RAZORPAY_KEY_SECRET', getenv('RAZORPAY_KEY_SECRET') ?: '');
 
 // Currency
