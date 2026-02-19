@@ -26,6 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['firebase_login'])) {
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['name'] = $user['name'];
         $_SESSION['role'] = $user['role'];
+        session_write_close();
         echo json_encode([
             'success' => true,
             'redirect' => $user['role'] === 'admin' ? '/admin/dashboard.php' : '/'

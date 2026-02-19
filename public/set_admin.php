@@ -30,4 +30,4 @@ try {
 } catch (Exception $e) {
     echo "<p style='color:red;'>❌ Database Error: " . $e->getMessage() . "</p>";
 }
-?>
+

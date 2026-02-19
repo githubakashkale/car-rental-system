@@ -13,6 +13,11 @@ class PostgresDB {
         $port = $_ENV['DB_PORT'] ?? 5432;
 
         $dsn = "pgsql:host=$host;port=$port;dbname=$dbName";
+        
+        // Use Unix socket if host is empty or explicitly set to socket path, or fallback for localhost
+        if (empty($host) || strpos($host, '/') === 0 || ($host === 'localhost' && empty($password) && php_sapi_name() === 'cli-server')) {
+             $dsn = "pgsql:dbname=$dbName"; 
+        }
 
         try {
             $this->pdo = new PDO($dsn, $username, $password, [
@@ -436,4 +441,4 @@ class PostgresDB {
 
 // For compatibility during migration/testing, we'll initialize with 'rentride' defaults
 $db = new PostgresDB('rentride', 'akash');
-?>
+

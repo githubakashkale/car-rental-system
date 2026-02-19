@@ -37,6 +37,7 @@ if ($existingUser) {
         $db->updateUser($existingUser['id'], $existingUser['name'], null, null, null, null, null, $photo);
     }
 
+    session_write_close(); // Ensure session is saved before redirect
     echo json_encode([
         'success' => true,
         'action' => 'login',
@@ -56,7 +57,8 @@ if ($existingUser) {
     $_SESSION['user_id'] = $userId;
     $_SESSION['name'] = $name;
     $_SESSION['role'] = 'user';
-
+    
+    session_write_close(); // Ensure session is saved before redirect
     echo json_encode([
         'success' => true,
         'action' => 'register',
