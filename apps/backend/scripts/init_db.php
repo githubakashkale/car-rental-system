@@ -3,9 +3,18 @@
 require __DIR__ . '/../config/db.php';
 
 // Seed Admin
-if (!$db->findUserByEmail('admin@rental.com')) {
-    $db->createUser('System Admin', 'admin@rental.com', password_hash('admin123', PASSWORD_DEFAULT), 'admin');
-    echo "Admin user seeded.\n";
+if (!$db->findUserByEmail('akashkale3762@gmail.com')) {
+    // Check if old admin exists and update, or just create new if really not found.
+    // Ideally we should probably check if ANY admin exists, but for init_db we usually assume fresh or additive.
+    // But since we want to enforce this email, let's just use it.
+    // If the old admin email exists, we might want to update it, but init_db usually just seeds missing data.
+    // The reset_admin.php script is better for migration.
+    
+    // Just create if not exists
+    if (!$db->findUserByEmail('admin@rental.com')) {
+         $db->createUser('System Admin', 'akashkale3762@gmail.com', password_hash('admin123', PASSWORD_DEFAULT), 'admin');
+         echo "Admin user seeded.\n";
+    }
 }
 
 // Seed Vehicles
