@@ -86,10 +86,18 @@ if ($search) {
                     <td><?= $u['booking_count'] ?></td>
                     <td>₹<?= number_format($u['total_spent'], 2) ?></td>
                     <td>
+                        <?php 
+                            $userRole = $u['role'] ?? 'user';
+                            $isActive = in_array($userRole, ['user', 'admin']);
+                            $statusLabel = $userRole === 'admin' ? 'ADMIN' : ($userRole === 'blacklisted' ? 'BLACKLISTED' : ($isActive ? 'ACTIVE' : 'INACTIVE'));
+                            $statusBg = $isActive ? '#dcfce7' : '#fee2e2';
+                            $statusColor = $isActive ? '#166534' : '#991b1b';
+                            if ($userRole === 'admin') { $statusBg = '#e0e7ff'; $statusColor = '#4338ca'; }
+                        ?>
                         <span style="padding: 0.25rem 0.6rem; border-radius: 99px; font-size: 0.75rem; font-weight: 600;
-                            background: <?= ($u['status'] ?? 'active') === 'active' ? '#dcfce7' : '#fee2e2' ?>;
-                            color: <?= ($u['status'] ?? 'active') === 'active' ? '#166534' : '#991b1b' ?>;">
-                            <?= strtoupper($u['status'] ?? 'active') ?>
+                            background: <?= $statusBg ?>;
+                            color: <?= $statusColor ?>;">
+                            <?= $statusLabel ?>
                         </span>
                     </td>
                     <td>
@@ -97,8 +105,8 @@ if ($search) {
                             <form method="POST" style="display: inline;">
                                 <input type="hidden" name="user_id" value="<?= $u['id'] ?>">
                                 <button type="submit" name="toggle_status" class="btn btn-sm" style="font-size: 0.75rem; 
-                                    background: <?= ($u['status'] ?? 'active') === 'active' ? '#ef4444' : '#10b981' ?>; color: white;">
-                                    <?= ($u['status'] ?? 'active') === 'active' ? 'Deactivate' : 'Activate' ?>
+                                    background: <?= $isActive ? '#ef4444' : '#10b981' ?>; color: white;">
+                                    <?= $isActive ? 'Deactivate' : 'Activate' ?>
                                 </button>
                             </form>
                         <?php else: ?>

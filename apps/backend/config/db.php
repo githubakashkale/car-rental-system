@@ -251,12 +251,13 @@ class PostgresDB {
 
             // Update Vehicle Damage History
             $stmt = $this->pdo->prepare("UPDATE vehicles SET damage_history = damage_history || ?, availability_status = 'Available', available = TRUE WHERE id = ?");
+            $returnReq = is_string($booking['return_request']) ? json_decode($booking['return_request'], true) : $booking['return_request'];
             $damageEntry = json_encode([
                 'date' => date('Y-m-d'),
                 'booking_id' => $bookingId,
-                'condition' => json_decode($booking['return_request'], true)['condition'] ?? 'Unknown',
+                'condition' => $returnReq['condition'] ?? 'Unknown',
                 'penalty' => $penalty,
-                'notes' => json_decode($booking['return_request'], true)['notes'] ?? ''
+                'notes' => $returnReq['notes'] ?? ''
             ]);
             $stmt->execute(['[' . $damageEntry . ']', $booking['vehicle_id']]);
 

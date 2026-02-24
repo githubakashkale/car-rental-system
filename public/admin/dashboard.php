@@ -1,10 +1,19 @@
 <?php
 // admin/dashboard.php
 require_once __DIR__ . '/../../apps/backend/config/db.php';
+require_once __DIR__ . '/../../apps/backend/config/admin.php';
 session_start();
 
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     header("Location: /admin/login.php");
+    exit;
+}
+
+// Extra safety: verify the logged-in user is still the designated admin
+$adminUser = $db->getUserById($_SESSION['user_id']);
+if (!$adminUser || !isAdminEmail($adminUser['email'])) {
+    $_SESSION['role'] = 'user'; // Demote in session
+    header("Location: /");
     exit;
 }
 
@@ -195,7 +204,8 @@ foreach ($bookings as $b) {
                             </td>
                             <td>₹<?= number_format($v['price_per_day'], 2) ?></td>
                             <td>
-                                <button onclick='openDamageHistory(<?= json_encode($v['damage_history'] ?? []) ?>, "<?= htmlspecialchars($v['vehicle_name']) ?>")' class="btn btn-outline btn-sm" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; border-color: #64748b; color: #64748b;">History</button>
+                                <?php $dh = is_string($v['damage_history'] ?? '[]') ? json_decode($v['damage_history'] ?? '[]', true) : ($v['damage_history'] ?? []); ?>
+                                <button onclick='openDamageHistory(<?= json_encode($dh ?: []) ?>, "<?= htmlspecialchars($v['vehicle_name']) ?>")' class="btn btn-outline btn-sm" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; border-color: #64748b; color: #64748b;">History</button>
                                 <a href="/admin/edit_vehicle.php?id=<?= $v['id'] ?>" class="btn btn-outline btn-sm" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; border-color: #3b82f6; color: #3b82f6;">Edit</a>
                                 <form method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this vehicle? This action cannot be undone.');">
                                     <input type="hidden" name="vehicle_id" value="<?= $v['id'] ?>">
@@ -238,7 +248,8 @@ foreach ($bookings as $b) {
                             <td>#<?= $b['id'] ?></td>
                             <td><?= htmlspecialchars($b['user_name']) ?></td>
                             <td><?= htmlspecialchars($b['vehicle_name']) ?></td>
-                            <td><?= date('M d, H:i', strtotime($b['return_request']['requested_at'])) ?></td>
+                            <?php $rr = is_string($b['return_request']) ? json_decode($b['return_request'], true) : $b['return_request']; ?>
+                            <td><?= !empty($rr['requested_at']) ? date('M d, H:i', strtotime($rr['requested_at'])) : 'N/A' ?></td>
                             <td>
                                 <?php if(!empty($b['approval_otp'])): ?>
                                     <span style="font-family: monospace; font-weight: 700; color: #166534; background: #dcfce7; padding: 2px 8px; border-radius: 4px; border: 1px solid #166534;"><?= $b['approval_otp'] ?></span>

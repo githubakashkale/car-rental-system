@@ -53,7 +53,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'fuel_level' => $fuel,
             'condition' => $condition,
             'image_path' => $imagePath,
-            'notes' => $notes
+            'notes' => $notes,
+            'requested_at' => date('Y-m-d H:i:s')
         ];
         
         if ($db->requestReturn($bookingId, $returnData)) {

@@ -156,13 +156,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['generate_otp'])) {
         <!-- Detail Section -->
         <main class="detail-view">
             <?php if($activeBooking): 
-                $req = $activeBooking['return_request'];
+                $req = is_string($activeBooking['return_request']) ? json_decode($activeBooking['return_request'], true) : $activeBooking['return_request'];
+                if (!is_array($req)) $req = [];
             ?>
                 <div class="card">
                     <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1.5rem;">
                         <div>
                             <h2><?= htmlspecialchars($activeBooking['vehicle_name']) ?></h2>
-                            <p style="color:var(--secondary);">Rented by <?= htmlspecialchars($activeBooking['user_name']) ?> &bull; Return requested at <?= date('M d, H:i', strtotime($req['requested_at'])) ?></p>
+                            <p style="color:var(--secondary);">Rented by <?= htmlspecialchars($activeBooking['user_name']) ?> &bull; Return requested at <?= !empty($req['requested_at']) ? date('M d, H:i', strtotime($req['requested_at'])) : 'N/A' ?></p>
                         </div>
                         <div style="text-align:right;">
                             <span style="padding:4px 12px; background:#fef3c7; color:#92400e; border-radius:99px; font-weight:600; font-size:0.8rem;">PENDING VERIFICATION</span>

@@ -1,6 +1,7 @@
 <?php
 // login.php — Login with Firebase Email Verification + Google Sign-In
 require_once __DIR__ . '/../apps/backend/config/db.php';
+require_once __DIR__ . '/../apps/backend/config/admin.php';
 session_start();
 
 // Flash message from registration
@@ -19,17 +20,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['firebase_login'])) {
     $user = $db->findUserByEmail($email);
 
     if ($user && password_verify($password, $user['password'])) {
-        if (($user['status'] ?? 'active') === 'blacklisted') {
+        // Check blacklist status
+        if (($user['role'] ?? 'user') === 'blacklisted') {
             echo json_encode(['success' => false, 'error' => '🚫 Your account has been blacklisted due to major vehicle damage. Please contact support.']);
             exit;
         }
+
+        // Enforce single admin: only cars.rentride@gmail.com can be admin
+        $role = isAdminEmail($email) ? 'admin' : ($user['role'] === 'admin' ? 'user' : $user['role']);
+
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['name'] = $user['name'];
-        $_SESSION['role'] = $user['role'];
+        $_SESSION['role'] = $role;
         session_write_close();
         echo json_encode([
             'success' => true,
-            'redirect' => $user['role'] === 'admin' ? '/admin/dashboard.php' : '/'
+            'redirect' => $role === 'admin' ? '/admin/dashboard.php' : '/'
         ]);
     } else {
         echo json_encode(['success' => false, 'error' => 'Invalid email or password']);

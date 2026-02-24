@@ -10,7 +10,7 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $user = $db->getUserById($_SESSION['user_id']);
-if (($user['status'] ?? 'active') === 'blacklisted') {
+if (($user['role'] ?? 'user') === 'blacklisted') {
     $_SESSION['flash_error'] = "Your account has been blacklisted and cannot make new bookings. Please contact support.";
     header("Location: /my-bookings.php");
     exit;

@@ -168,7 +168,11 @@ $bookings = $db->getBookingsByUser($_SESSION['user_id']);
                                 <span style="display:block; color: #991b1b; font-size: 0.65rem;">(Late Fee: -₹<?= $b['late_fee'] ?> for <?= $b['late_hours'] ?> hrs)</span>
                             <?php endif; ?>
                         </div>
-                        <?php if(!isset($b['review'])): ?>
+                        <?php 
+                            $reviewData = is_string($b['review'] ?? '{}') ? json_decode($b['review'] ?? '{}', true) : ($b['review'] ?? []);
+                            $hasReview = !empty($reviewData) && !empty($reviewData['rating']);
+                        ?>
+                        <?php if(!$hasReview): ?>
                             <br><a href="/add_review.php?booking_id=<?= $b['id'] ?>" class="btn btn-outline btn-sm" style="margin-top:0.5rem; font-size:0.75rem; border-color: #f59e0b; color: #f59e0b;">⭐ Rate & Review</a>
                         <?php else: ?>
                             <div style="margin-top: 0.5rem; font-size: 0.7rem; color: var(--secondary);">✅ Review Submitted</div>

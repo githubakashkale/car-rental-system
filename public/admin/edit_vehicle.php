@@ -126,4 +126,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 </div>
 
-<?php require __DIR__ . '/../../apps/templates/header.php'; ?>
+<?php require __DIR__ . '/../../apps/templates/footer.php'; ?>

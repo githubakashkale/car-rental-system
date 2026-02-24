@@ -1,6 +1,7 @@
 <?php
 // google_auth.php — Handle Google Sign-In/Sign-Up via Firebase
 require_once __DIR__ . '/../apps/backend/config/db.php';
+require_once __DIR__ . '/../apps/backend/config/admin.php';
 session_start();
 header('Content-Type: application/json');
 
@@ -23,14 +24,19 @@ if (!$email || !$name) {
 $existingUser = $db->findUserByEmail($email);
 
 if ($existingUser) {
-    if (($existingUser['status'] ?? 'active') === 'blacklisted') {
+    // Check blacklist status
+    if (($existingUser['role'] ?? 'user') === 'blacklisted') {
         echo json_encode(['success' => false, 'error' => '🚫 Your account has been blacklisted due to major vehicle damage. Please contact support.']);
         exit;
     }
+
+    // Enforce single admin: only cars.rentride@gmail.com can be admin
+    $role = isAdminEmail($email) ? 'admin' : ($existingUser['role'] === 'admin' ? 'user' : $existingUser['role']);
+
     // User exists — log them in
     $_SESSION['user_id'] = $existingUser['id'];
     $_SESSION['name'] = $existingUser['name'];
-    $_SESSION['role'] = $existingUser['role'];
+    $_SESSION['role'] = $role;
 
     // Update photo if available and not already set
     if ($photo && empty($existingUser['photo'])) {
@@ -42,12 +48,13 @@ if ($existingUser) {
         'success' => true,
         'action' => 'login',
         'message' => 'Welcome back, ' . explode(' ', $existingUser['name'])[0] . '!',
-        'redirect' => $existingUser['role'] === 'admin' ? '/admin/dashboard.php' : '/'
+        'redirect' => $role === 'admin' ? '/admin/dashboard.php' : '/'
     ]);
 } else {
-    // New user — create account
+    // New user — create account (never auto-create as admin)
+    $role = isAdminEmail($email) ? 'admin' : 'user';
     $randomPassword = password_hash(bin2hex(random_bytes(16)), PASSWORD_DEFAULT);
-    $userId = $db->createUser($name, $email, $randomPassword, 'user', $phone);
+    $userId = $db->createUser($name, $email, $randomPassword, $role, $phone);
 
     // Save Google profile photo
     if ($photo) {
@@ -56,13 +63,14 @@ if ($existingUser) {
 
     $_SESSION['user_id'] = $userId;
     $_SESSION['name'] = $name;
-    $_SESSION['role'] = 'user';
+    $_SESSION['role'] = $role;
     
     session_write_close(); // Ensure session is saved before redirect
     echo json_encode([
         'success' => true,
         'action' => 'register',
         'message' => '🎉 Welcome to RentRide, ' . explode(' ', $name)[0] . '!',
-        'redirect' => '/'
+        'redirect' => $role === 'admin' ? '/admin/dashboard.php' : '/'
     ]);
 }
+

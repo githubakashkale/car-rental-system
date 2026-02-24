@@ -16,7 +16,8 @@ if (!$booking || $booking['user_id'] != $_SESSION['user_id'] || $booking['bookin
     exit;
 }
 
-if (isset($booking['review'])) {
+$existingReview = is_string($booking['review'] ?? '{}') ? json_decode($booking['review'] ?? '{}', true) : ($booking['review'] ?? []);
+if (!empty($existingReview) && !empty($existingReview['rating'])) {
     $_SESSION['flash_success'] = "You have already reviewed this booking.";
     header("Location: /my-bookings.php");
     exit;

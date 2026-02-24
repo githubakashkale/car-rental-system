@@ -1,6 +1,7 @@
 <?php
 // admin/login.php
 require_once __DIR__ . '/../../apps/backend/config/db.php';
+require_once __DIR__ . '/../../apps/backend/config/admin.php';
 require_once __DIR__ . '/../../apps/backend/config/firebase_helper.php';
 
 session_start();
@@ -28,18 +29,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['idToken'])) {
         $claims = $verifiedToken->claims();
         $email = $claims->get('email');
         
-        // Find user by email in our JSON DB
+        // ENFORCE: Only the designated admin email can access
+        if (!isAdminEmail($email)) {
+            echo json_encode(['success' => false, 'error' => 'Access denied. Only the designated administrator (' . ADMIN_EMAIL . ') can access this panel.']);
+            exit;
+        }
+
+        // Find user by email in our DB
         $user = $db->findUserByEmail($email);
 
-        if ($user && $user['role'] === 'admin') {
+        if ($user) {
+            // Ensure DB role is set to admin
+            if ($user['role'] !== 'admin') {
+                $pdo = $db->getPdo();
+                $stmt = $pdo->prepare("UPDATE users SET role = 'admin' WHERE id = ?");
+                $stmt->execute([$user['id']]);
+            }
+            
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['name'] = $user['name'];
             $_SESSION['email'] = $user['email'];
-            $_SESSION['role'] = $user['role'];
+            $_SESSION['role'] = 'admin';
             
             echo json_encode(['success' => true, 'redirect' => '/admin/dashboard.php']);
         } else {
-            echo json_encode(['success' => false, 'error' => 'Access denied. You are not an administrator.']);
+            // Auto-create admin account if doesn't exist yet
+            $randomPassword = password_hash(bin2hex(random_bytes(16)), PASSWORD_DEFAULT);
+            $userId = $db->createUser('RentRide Admin', $email, $randomPassword, 'admin');
+            
+            $_SESSION['user_id'] = $userId;
+            $_SESSION['name'] = 'RentRide Admin';
+            $_SESSION['email'] = $email;
+            $_SESSION['role'] = 'admin';
+            
+            echo json_encode(['success' => true, 'redirect' => '/admin/dashboard.php']);
         }
     } catch (Exception $e) {
         echo json_encode(['success' => false, 'error' => 'Authentication error: ' . $e->getMessage()]);
